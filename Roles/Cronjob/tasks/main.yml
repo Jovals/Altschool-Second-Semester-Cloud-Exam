@@ -1,6 +1,10 @@
+#Cronjob to check server uptime at 12am
 - name: Add cron Job for uptime check
   cron:
     name: "Check server Uptime Check"
     minute: "0"
     hour: "0"
     job: "uptime >> /var/log/server_uptime.log"
+
+- name: Notify user
+  command: "server uptime is save in /var/log/server_uptime.log"

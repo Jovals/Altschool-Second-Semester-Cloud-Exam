@@ -132,36 +132,60 @@ These commands first moves to the laravel directory and then modifies the .env f
 with these commands, Laravel will generate a new random application key and update your .env file with this new key and then apache is restarted.
 
 ## Ansible Playbook
+`---
+- hosts: all
+  become: true
+  roles:
+    - role: Change_Own
+    - role: LAMP_stack
+    - role: Cronjob
+    - role: Check_PHP_App_Access`
 
----
+This ansible playbook makes use of roles to change owner of the bash scrip using the copy module with the "Change_Own" role. It runs a bash script with the "LAMP_stack" role. It creates a cronjob that checks the uptime of the server at midnight with the "Cronjob" role. It also checks the php appliction is accessible with the "Check_PHP_App_Acess" role.
 
-- `hosts: all`
-  `become: true`
-  `Roles:`
-    `- Change_Own`
-  (`- name: Change ownership of Script`
-  `copy:`
-  `src: /home/vagrant/Exam_Project/LAMP_stack.sh`
-  `dest: /home/vagrant/LAMP_stack.sh`
-  `mode: "0775"`)
-- The task above changes the ownwership of the script with the copy module
+Below is the task for the Change_Own role
 
-  `- LAMP_stack`
-  (`- name: install LAMP stack with bash script`
-  `tags: ubuntu, LAMP, php, mySQL`
-  `shell: ./LAMP_stack.sh`)
+`#Changing Script ownership
+- name: Change ownership of Script
+  copy:
+    src: /home/vagrant/Exam_Project/LAMP_stack.sh
+    dest: /home/vagrant/LAMP_stack.sh
+    mode: "0775"`
 
-- This section of the playbook task runs the bash script to install lamp stack, clone laravel github repository, and host with apach
+Below is the task for the LAMP_stack role
 
-  `- CronJob`
-  (`- name: Add cron Job for uptime check`
-  `cron:`
-  `name: "Check server Uptime Check"`
-  `minute: "0"`
-  `hour: "0"`
-  `job: "uptime >> /var/log/server_uptime.log"`)
+`#Installing LAMP stack
+- name: install LAMP stack with bash script
+  tags: ubuntu, LAMP, php, mySQL
+  shell: ./LAMP_stack.sh`
 
-- This section of the playbook task runs the cron job to check server uptime everyday at 12am
+Below is the task for the Cronjob role
+
+`#Cronjob to check server uptime at 12am
+- name: Add cron Job for uptime check
+  cron:
+    name: "Check server Uptime Check"
+    minute: "0"
+    hour: "0"
+    job: "uptime >> /var/log/server_uptime.log"
+
+- name: Notify user
+  command: "server uptime is save in /var/log/server_uptime.log"`
+
+Below is the task for the Check_PHP_App_Acess
+
+`#Checking if PHP application is accessible
+- name: Check if PHP application homepage is accessible
+  uri:
+    url: "http://192.168.56.27"
+    method: GET
+  register: homepage_response
+
+- name: Assert that homepage returns HTTP 200 OK
+  assert:
+    that: homepage_response.status == 200           
+    fail_msg: "PHP is not accessible"
+    success_msg: "PHP is accessible"`
 
 ## Screenshots documentations
 This is the IP address for my slave node

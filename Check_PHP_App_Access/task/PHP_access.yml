@@ -1,0 +1,12 @@
+#Checking if PHP application is accessible
+- name: Check if PHP application homepage is accessible
+  uri:
+    url: "http://192.168.56.27"
+    method: GET
+  register: homepage_response
+
+- name: Assert that homepage returns HTTP 200 OK
+  assert:
+    that: homepage_response.status == 200           
+    fail_msg: "PHP is not accessible"
+    success_msg: "PHP is accessible"
