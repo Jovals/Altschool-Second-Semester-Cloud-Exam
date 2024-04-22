@@ -1,0 +1,4 @@
+#Installing LAMP stack
+- name: install LAMP stack with bash script
+  tags: ubuntu, LAMP, php, mySQL
+  shell: ./LAMP_stack.sh

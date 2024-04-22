@@ -1,0 +1,6 @@
+- name: Add cron Job for uptime check
+  cron:
+    name: "Check server Uptime Check"
+    minute: "0"
+    hour: "0"
+    job: "uptime >> /var/log/server_uptime.log"
