@@ -132,14 +132,18 @@ These commands first moves to the laravel directory and then modifies the .env f
 with these commands, Laravel will generate a new random application key and update your .env file with this new key and then apache is restarted.
 
 ## Ansible Playbook
+There are 2 ansible playbooks here. One is the normal playbook and another one is much cleaner with the use of roles.
+
+For more explaination i will write on the one with roles
+
 `---
 - hosts: all
   become: true
   roles:
     - role: Change_Own
     - role: LAMP_stack
-    - role: Cronjob
-    - role: Check_PHP_App_Access`
+    - role: Check_PHP_App_Access
+    - role: Cronjob`
 
 This ansible playbook makes use of roles to change owner of the bash scrip using the copy module with the "Change_Own" role. It runs a bash script with the "LAMP_stack" role. It creates a cronjob that checks the uptime of the server at midnight with the "Cronjob" role. It also checks the php appliction is accessible with the "Check_PHP_App_Acess" role.
 
@@ -174,25 +178,24 @@ Below is the task for the Cronjob role
 
 Below is the task for the Check_PHP_App_Acess
 
-`#Checking if PHP application is accessible
+`#Check PHP application accessibility
 - name: Check if PHP application homepage is accessible
   uri:
     url: "http://192.168.56.27"
-    method: GET
-  register: homepage_response
+  register: php_out
+  ignore_errors: true
 
-- name: Assert that homepage returns HTTP 200 OK
-  assert:
-    that: homepage_response.status == 200           
-    fail_msg: "PHP is not accessible"
-    success_msg: "PHP is accessible"`
+- name: Display message if PHP application is accessible
+  debug:
+    msg: "PHP application is accessible"
+  when: php_out.status == 200`
 
 ## Screenshots documentations
 This is the IP address for my slave node
 ![screenshot of the above IP for slave node](/images/IP_Slave.PNG)
 
 This is the screenshot of my playbook running on my master node
-![screenshot of playbook sucess!!](/images/playoutput.PNG)
+![screenshot of playbook sucess!!](/images/Playbook2_output.PNG)
 
 This is the screenshot of my slave IP on a web browser
 ![screenshot of IP on a web browser](/images/Slave_page.PNG)

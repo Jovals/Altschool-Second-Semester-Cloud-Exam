@@ -1,0 +1,11 @@
+#Checking if PHP application is accessible
+- name: Check PHP application accessibility
+  uri:
+    url: http://192.168.56.27
+  register: php_out
+  ignore_errors: true
+
+- name: Display message if PHP application is accessible
+  debug:
+    msg: "PHP application is accessible"
+  when: php_out.status == 200

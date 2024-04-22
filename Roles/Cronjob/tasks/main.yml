@@ -7,4 +7,4 @@
     job: "uptime >> /var/log/server_uptime.log"
 
 - name: Notify user
-  command: "server uptime is save in /var/log/server_uptime.log"
+  shell: echo "server uptime is save in /var/log/server_uptime.log"
